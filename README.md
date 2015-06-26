@@ -76,6 +76,18 @@ progress.update(successHandler, errorHandler);
 progress.update();
 ```
 
+### hide
+
+Hide the loader. Note that the `successHandler` is called after the loader has completely disappeared.
+
+```js
+// with success and error handlers
+progress.hide(successHandler, errorHandler);
+
+// without callback functions
+progress.hide();
+```
+
 ## Platforms
 
 iOS only.
