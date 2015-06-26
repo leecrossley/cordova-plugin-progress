@@ -6,6 +6,13 @@ var Progress = function () {
 };
 
 Progress.prototype.show = function (onSuccess, onError, options) {
+    if (arguments.length === 1 && typeof (arguments[0]) !== "function") {
+        options = arguments[0];
+        arguments[0] = null;
+    }
+    if (typeof (options) === "string") {
+        options = {"text": options};
+    }
     exec(onSuccess, onError, "Progress", "show", [options]);
 };
 
