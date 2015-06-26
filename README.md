@@ -88,9 +88,24 @@ progress.hide(successHandler, errorHandler);
 progress.hide();
 ```
 
+## Full basic example
+
+```js
+// after the cordova device ready event has fired
+progress.show("Loading...");
+
+setTimeout(function () {
+    progress.update("Still loading...");
+}, 1500);
+
+setTimeout(function () {
+    progress.hide();
+}, 3000);
+```
+
 ## Platforms
 
-iOS only.
+iOS (7+) only.
 
 ## License
 
