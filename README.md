@@ -22,7 +22,17 @@ You **do not** need to reference any JavaScript, the Cordova plugin architecture
 
 ### show
 
-Show the basic indeterminate progress loader, with optional text.
+Show the basic indeterminate progress loader.
+
+```js
+// with success and error handlers
+progress.show(successHandler, errorHandler);
+
+// without callback functions
+progress.show();
+```
+
+Show the basic indeterminate progress loader, with text. When text is supplied, the loader width is larger.
 
 ```js
 // with success and error handlers
@@ -36,6 +46,34 @@ progress.show({"text": "Loading..."});
 
 // without callback functions (shorthand)
 progress.show("Loading...");
+```
+
+### update
+
+Update the loader text on the fly (animated). If the loader was initiated without text, the width will remain smaller than if it was initiated with text.
+
+```js
+// with success and error handlers
+progress.update(successHandler, errorHandler, {"text": "Still loading..."});
+
+// with success and error handlers (shorthand)
+progress.update(successHandler, errorHandler, "Still loading...");
+
+// without callback functions
+progress.update({"text": "Still loading..."});
+
+// without callback functions (shorthand)
+progress.update("Still loading...");
+```
+
+You can also use the update function to remove any previous text (an empty string is treated the same as omitting the string).
+
+```js
+// with success and error handlers
+progress.update(successHandler, errorHandler);
+
+// without callback functions
+progress.update();
 ```
 
 ## Platforms

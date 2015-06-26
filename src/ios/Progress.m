@@ -13,16 +13,8 @@
 - (void) show:(CDVInvokedUrlCommand*)command;
 {
     NSMutableDictionary *args = [command.arguments objectAtIndex:0];
-    NSString *text = [args objectForKey:@"text"];
 
-    if (text != nil)
-    {
-        [KVNProgress showWithStatus:text];
-    }
-    else
-    {
-        [KVNProgress show];
-    }
+    [KVNProgress showWithStatus:[args objectForKey:@"text"]];
 
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
 }
@@ -30,9 +22,8 @@
 - (void) update:(CDVInvokedUrlCommand*)command;
 {
     NSMutableDictionary *args = [command.arguments objectAtIndex:0];
-    NSString *text = [args objectForKey:@"text"];
 
-    [KVNProgress updateStatus:text];
+    [KVNProgress updateStatus:[args objectForKey:@"text"]];
 
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
 }
