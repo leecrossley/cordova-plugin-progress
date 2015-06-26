@@ -2,6 +2,12 @@
 
 **Cordova / PhoneGap Plugin for Progress HUD Notifications via [KVNProgress](https://github.com/kevin-hirsch/KVNProgress).**
 
+## Demo
+
+(Excuse the frame rate)
+
+![Cordova Progress](https://raw.github.com/leecrossley/cordova-plugin-progress/master/progress.gif)
+
 ## Install
 
 #### Latest published version on npm (with Cordova CLI >= 5.0.0)
