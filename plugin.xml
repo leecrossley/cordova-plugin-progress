@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<plugin id="cordova-plugin-progress" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0">
+    <name>Progress</name>
+    <author>Lee Crossley (http://ilee.co.uk/)</author>
+    <description>Cordova / PhoneGap Plugin for Progress HUD Notifications via KVNProgress</description>
+    <keywords>cordova, progress, hud, notification, message, toast, status, overlay, loader</keywords>
+    <license>MIT</license>
+    <engines>
+        <engine name="cordova" version=">=3.0.0"/>
+    </engines>
+    <js-module name="Progress" src="www/progress.js">
+        <clobbers target="progress"/>
+    </js-module>
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="Progress">
+                <param name="ios-package" value="Progress"/>
+                <param name="onload" value="true"/>
+            </feature>
+        </config-file>
+        <header-file src="src/ios/Progress.h"/>
+        <source-file src="src/ios/Progress.m"/>
+        <framework autogen="true" src="Foundation.framework"/>
+        <framework autogen="true" src="QuartzCore.framework"/>
+        <framework autogen="true" src="GLKit.framework"/>
+        <header-file autogen="true" src="src/ios/vendor/headers/KVNProgress.h"/>
+        <header-file autogen="true" src="src/ios/vendor/headers/KVNProgressConfiguration.h"/>
+        <header-file autogen="true" src="src/ios/vendor/headers/UIColor+KVNContrast.h"/>
+        <header-file autogen="true" src="src/ios/vendor/headers/UIImage+KVNEmpty.h"/>
+        <header-file autogen="true" src="src/ios/vendor/headers/UIImage+KVNImageEffects.h"/>
+        <source-file autogen="true" framework="true" src="src/ios/vendor/libKVNProgress.a"/>
+    </platform>
+</plugin>

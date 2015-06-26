@@ -1,0 +1,44 @@
+{
+  "name": "cordova-plugin-progress",
+  "version": "0.0.1",
+  "author": "Lee Crossley <leee@hotmail.co.uk> (http://ilee.co.uk/)",
+  "description": "Cordova / PhoneGap Plugin for Progress HUD Notifications via KVNProgress",
+  "cordova": {
+    "id": "cordova-plugin-progress",
+    "platforms": [
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leecrossley/cordova-plugin-progress.git"
+  },
+  "keywords": [
+    "cordova",
+    "progress",
+    "hud",
+    "notification",
+    "message",
+    "toast",
+    "status",
+    "overlay",
+    "loader",
+    "ecosystem:cordova",
+    "cordova-ios"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0.0"
+    },
+    {
+      "name": "apple-ios",
+      "version": ">=8.2.0"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/leecrossley/cordova-plugin-progress/issues"
+  },
+  "homepage": "https://github.com/leecrossley/cordova-plugin-progress#readme"
+}
