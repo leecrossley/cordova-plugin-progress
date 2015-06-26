@@ -4,7 +4,7 @@
 
 ## Demo
 
-<img src="https://raw.github.com/leecrossley/cordova-plugin-progress/master/progress.gif" alt="Cordova Progress" style="width: 180px;">
+<img src="https://raw.github.com/leecrossley/cordova-plugin-progress/master/progress.gif" alt="Cordova Progress" width="180" style="width: 180px;">
 
 ![Cordova Progress](https://raw.github.com/leecrossley/cordova-plugin-progress/master/progress.gif)
 
