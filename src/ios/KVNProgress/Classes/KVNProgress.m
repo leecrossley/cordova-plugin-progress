@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Kevin Hirsch. All rights reserved.
 //
 
-@import QuartzCore;
-@import GLKit;
+#import <QuartzCore/QuartzCore.h>
+#import <GLKit/GLKit.h>
 
 #import "KVNProgress.h"
 
@@ -101,17 +101,17 @@ static KVNProgressConfiguration *configuration;
 {
 	static KVNProgress *sharedView = nil;
 	static dispatch_once_t onceToken;
-	
+
 	dispatch_once(&onceToken, ^{
 		UINib *nib = [UINib nibWithNibName:@"KVNProgressView"
                                     bundle:[NSBundle bundleForClass:[self class]]];
 		NSArray *nibViews = [nib instantiateWithOwner:self
 											  options:0];
 
-		
+
 		sharedView = nibViews[0];
 	});
-	
+
 	return sharedView;
 }
 
@@ -123,12 +123,12 @@ static KVNProgressConfiguration *configuration;
 		if (!configuration) {
 			configuration = [KVNProgressConfiguration defaultConfiguration];
 		}
-		
+
 		_configuration = configuration;
-		
+
 		[self registerForNotifications];
 	}
-	
+
 	return self;
 }
 
@@ -144,7 +144,7 @@ static KVNProgressConfiguration *configuration;
 											 selector:@selector(applicationDidBecomeActive)
 												 name:UIApplicationDidBecomeActiveNotification
 											   object:nil];
-	
+
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(orientationDidChange:)
 												 name:UIDeviceOrientationDidChangeNotification
@@ -164,7 +164,7 @@ static KVNProgressConfiguration *configuration;
 	if (![self.class isVisible]) {
 		return;
 	}
-	
+
 	if ([self.superview isKindOfClass:[UIWindow class]]) {
 		KVNPrepareBlockSelf();
 		[UIView animateWithDuration:0.3f
@@ -344,7 +344,7 @@ static KVNProgressConfiguration *configuration;
 		  completion:(KVNCompletionBlock)completion
 {
 	KVNPrepareBlockSelf();
-	
+
 	// We check if a previous HUD is displaying
 	// If so, we wait its minimum display time before switching to the new one
 	// But, if we are changing from an indeterminate progress HUD to a determinate one,
@@ -357,13 +357,13 @@ static KVNProgressConfiguration *configuration;
 
 		NSTimeInterval timeIntervalSinceShow = [self.showActionTrigerredDate timeIntervalSinceNow];
 		NSTimeInterval delay = 0;
-		
+
 		if (timeIntervalSinceShow < self.configuration.minimumDisplayTime) {
 			// The hud hasn't showed enough time
 			timeIntervalSinceShow = (timeIntervalSinceShow < 0) ? 0 : timeIntervalSinceShow;
 			delay = self.configuration.minimumDisplayTime - timeIntervalSinceShow;
 		}
-		
+
 		if (delay > 0) {
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 				if (KVNBlockSelf.state == KVNProgressStateDismissing || ![KVNBlockSelf.class isVisible]) {
@@ -372,7 +372,7 @@ static KVNProgressConfiguration *configuration;
 					// So logically, we do not display the new HUD that is already dismissed (before even being displayed)
 					return;
 				}
-				
+
 				[KVNBlockSelf showProgress:progress
 									status:status
 									 style:style
@@ -381,11 +381,11 @@ static KVNProgressConfiguration *configuration;
 									  view:superview
 								completion:completion];
 			});
-			
+
 			return;
 		}
 	}
-	
+
 	// We're going to create a new HUD
 	self.waitingToChangeHUD = NO;
 	self.progress = progress;
@@ -397,25 +397,25 @@ static KVNProgressConfiguration *configuration;
 	// If HUD is already added to the view we just update the UI
 	if ([self.class isVisible]) {
 		self.state = KVNProgressStateShowed;
-		
+
 		[UIView animateWithDuration:KVNLayoutAnimationDuration
 						 animations:^{
 							 [KVNBlockSelf setupUI];
 						 }];
-		
+
 		KVNBlockSelf.showActionTrigerredDate = [NSDate date];
 		[KVNBlockSelf animateUI];
 	} else {
 		self.state = KVNProgressStateAppearing;
-		
+
 		if (superview) {
 			[self addToView:superview];
 		} else {
 			[self addToCurrentWindow];
 		}
-		
+
 		[self setupUI];
-		
+
 		// FIXME: find a way to wait for the views to be added to the window before launching the animations
 		// (Fix to make the animations work fine)
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -423,7 +423,7 @@ static KVNProgressConfiguration *configuration;
 			[KVNBlockSelf animateAppearance];
 		});
 	}
-	
+
 	// If it's an auto-dismissable HUD
 	if (self.style != KVNProgressStyleProgress) {
 		NSTimeInterval delay;
@@ -441,7 +441,7 @@ static KVNProgressConfiguration *configuration;
 				// should never happen
 				return;
 		}
-		
+
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 			[KVNBlockSelf.class dismissWithCompletion:completion];
 		});
@@ -462,10 +462,10 @@ static KVNProgressConfiguration *configuration;
 	} else if ([self sharedView].state == KVNProgressStateAppearing) {
 		[self sharedView].state = KVNProgressStateDismissing;
 		[self endDismissWithCompletion:completion];
-		
+
 		return;
 	}
-	
+
 	[self sharedView].state = KVNProgressStateDismissing;
 
 	// FIXME: find a way to wait for the views to be added to the window before launching the animations
@@ -482,10 +482,10 @@ static KVNProgressConfiguration *configuration;
 + (void)dismissAnimatedWithCompletion:(KVNCompletionBlock)completion
 {
 	KVNProgress *progressView = [self sharedView];
-	
+
 	NSTimeInterval timeIntervalSinceShow = fabs([progressView.showActionTrigerredDate timeIntervalSinceNow]);
 	NSTimeInterval delay = 0;
-	
+
 	if (timeIntervalSinceShow < progressView.configuration.minimumDisplayTime) {
 		// The hud hasn't showed enough time
 		delay = progressView.configuration.minimumDisplayTime - timeIntervalSinceShow;
@@ -510,20 +510,20 @@ static KVNProgressConfiguration *configuration;
 + (void)endDismissWithCompletion:(KVNCompletionBlock)completion
 {
 	KVNProgress *progressView = [self sharedView];
-	
+
 	if (progressView.state == KVNProgressStateDismissing) {
 		[self sharedView].state = KVNProgressStateHidden;
-		
+
 		[progressView cancelCircleAnimation];
 		[progressView removeFromSuperview];
-		
+
 		progressView.style = KVNProgressStyleHidden;
-		
+
 		UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
-		
+
 		[UIApplication sharedApplication].statusBarStyle = [self sharedView].rootControllerStatusBarStyle;
 	}
-	
+
 	if (completion) {
 		dispatch_async(dispatch_get_main_queue(), ^{
 			completion();
@@ -546,11 +546,11 @@ static KVNProgressConfiguration *configuration;
 - (void)setupStatusBar
 {
 	self.rootControllerStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-	
+
 	if (![self isFullScreen]) {
 		return;
 	}
-	
+
 	UIColor *backgroundColor;
 	switch (self.backgroundType) {
 		case KVNProgressBackgroundTypeBlurred: {
@@ -562,7 +562,7 @@ static KVNProgressConfiguration *configuration;
 			break;
 		}
 	}
-	
+
 	[UIApplication sharedApplication].statusBarStyle = [backgroundColor statusBarStyleConstrastStyle];
 }
 
@@ -571,7 +571,7 @@ static KVNProgressConfiguration *configuration;
 	for (UIGestureRecognizer *gestureRecognizer in self.gestureRecognizers) {
 		[self removeGestureRecognizer:gestureRecognizer];
 	}
-	
+
 	if (self.configuration.tapBlock) {
 		UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(performTapBlock)];
 		[self addGestureRecognizer:tapGestureRecognizer];
@@ -583,13 +583,13 @@ static KVNProgressConfiguration *configuration;
 	CGRect bounds = [self correctedBounds];
 	CGFloat statusInset = (self.status.length > 0) ? KVNContentViewWithStatusInset : KVNContentViewWithoutStatusInset;
 	CGFloat contentWidth;
-	
+
 	if (!KVNSystemVersionGreaterOrEqual_iOS_8 && [self.superview isKindOfClass:UIWindow.class]) {
 		self.transform = CGAffineTransformMakeRotation([self rotationForStatusBarOrientation]);
 	} else {
 		self.transform = CGAffineTransformIdentity;
 	}
-	
+
 	if ([self isFullScreen]) {
 		contentWidth = CGRectGetWidth(bounds) - (2 * KVNContentViewFullScreenModeLeadingAndTrailingSpaceConstraintConstant);
 	} else {
@@ -597,17 +597,17 @@ static KVNProgressConfiguration *configuration;
 			contentWidth = KVNAlertViewWidth;
 		} else {
 			contentWidth = CGRectGetWidth(bounds) - (2 * KVNContentViewNotFullScreenModeLeadingAndTrailingSpaceConstraintConstant);
-			
+
 			if (contentWidth > KVNAlertViewWidth) {
 				contentWidth = KVNAlertViewWidth;
 			}
 		}
 	}
-	
+
 	self.circleProgressViewTopToSuperViewConstraint.constant = statusInset;
 	self.statusLabelBottomToSuperViewConstraint.constant = statusInset;
 	self.contentViewWidthConstraint.constant = contentWidth;
-	
+
 	[self layoutIfNeeded];
 }
 
@@ -616,14 +616,14 @@ static KVNProgressConfiguration *configuration;
 	// Constraints
 	self.circleProgressViewWidthConstraint.constant = self.configuration.circleSize;
 	self.circleProgressViewHeightConstraint.constant = self.configuration.circleSize;
-	
+
 	[self layoutIfNeeded];
-	
+
 	// Circle shape
 	self.circleProgressView.layer.cornerRadius = (self.configuration.circleSize / 2.0f);
 	self.circleProgressView.layer.masksToBounds = YES;
 	self.circleProgressView.backgroundColor = [UIColor clearColor];
-	
+
 	// Remove all previous added layers
 	[self removeAllSubLayersOfLayer:self.circleProgressView.layer];
 }
@@ -632,21 +632,21 @@ static KVNProgressConfiguration *configuration;
 {
 	CGFloat radius = (self.configuration.circleSize / 2.0f);
 	CGPoint center = CGPointMake(radius, radius);
-	
+
 	UIBezierPath *circlePath = [UIBezierPath bezierPathWithArcCenter:center
 															  radius:(radius - self.configuration.lineWidth)
 														  startAngle:GLKMathDegreesToRadians(-45.0f)
 															endAngle:GLKMathDegreesToRadians(275.0f)
 														   clockwise:YES];
-	
+
 	self.circleProgressLineLayer = [CAShapeLayer layer];
 	self.circleProgressLineLayer.path = circlePath.CGPath;
 	self.circleProgressLineLayer.strokeColor = self.configuration.circleStrokeForegroundColor.CGColor;
 	self.circleProgressLineLayer.fillColor = self.configuration.circleFillBackgroundColor.CGColor;
 	self.circleProgressLineLayer.lineWidth = self.configuration.lineWidth;
-	
+
 	[self.circleProgressView.layer addSublayer:self.circleProgressLineLayer];
-	
+
 	[self.circleProgressLineLayer removeAllAnimations];
 	[self.circleProgressView.layer removeAllAnimations];
 	[self animateCircleWithInfiniteLoop];
@@ -656,33 +656,33 @@ static KVNProgressConfiguration *configuration;
 {
 	CGFloat radius = (self.configuration.circleSize / 2.0f);
 	CGPoint center = CGPointMake(radius, radius);
-	
+
 	UIBezierPath *circlePath = [UIBezierPath bezierPathWithArcCenter:center
 															  radius:(radius - self.configuration.lineWidth)
 														  startAngle:GLKMathDegreesToRadians(-90.0f)
 															endAngle:GLKMathDegreesToRadians(275.0f)
 														   clockwise:YES];
-	
+
 	[self cancelCircleAnimation];
-	
+
 	self.circleProgressLineLayer = [CAShapeLayer layer];
 	self.circleProgressLineLayer.path = circlePath.CGPath;
 	self.circleProgressLineLayer.strokeColor = self.configuration.circleStrokeForegroundColor.CGColor;
 	self.circleProgressLineLayer.fillColor = [UIColor clearColor].CGColor;
 	self.circleProgressLineLayer.lineWidth = self.configuration.lineWidth;
-	
+
 	self.circleBackgroundLineLayer = [CAShapeLayer layer];
 	self.circleBackgroundLineLayer.path = circlePath.CGPath;
 	self.circleBackgroundLineLayer.strokeColor = self.configuration.circleStrokeBackgroundColor.CGColor;
 	self.circleBackgroundLineLayer.fillColor = self.configuration.circleFillBackgroundColor.CGColor;
 	self.circleBackgroundLineLayer.lineWidth = self.configuration.lineWidth;
-	
+
 	[self.circleProgressView.layer addSublayer:self.circleBackgroundLineLayer];
 	[self.circleProgressView.layer addSublayer:self.circleProgressLineLayer];
-	
+
 	[self.circleProgressLineLayer removeAllAnimations];
 	[self.circleProgressView.layer removeAllAnimations];
-	
+
 	[self updateProgress:self.progress
 				animated:NO];
 }
@@ -690,7 +690,7 @@ static KVNProgressConfiguration *configuration;
 - (void)setupSuccessUI
 {
 	[self setupFullRoundCircleWithColor:self.configuration.successColor];
-	
+
     self.stopLayer.opacity = 0.0f;
 
 	UIBezierPath* checkmarkPath = [UIBezierPath bezierPath];
@@ -698,16 +698,16 @@ static KVNProgressConfiguration *configuration;
 	[checkmarkPath addLineToPoint:CGPointMake(CGRectGetWidth(self.circleProgressView.bounds) * 0.42f, CGRectGetHeight(self.circleProgressView.bounds) * 0.66f)];
 	[checkmarkPath addLineToPoint:CGPointMake(CGRectGetWidth(self.circleProgressView.bounds) * 0.72f, CGRectGetHeight(self.circleProgressView.bounds) * 0.36f)];
 	checkmarkPath.lineCapStyle = kCGLineCapSquare;
-	
+
 	self.checkmarkLayer = [CAShapeLayer layer];
 	self.checkmarkLayer.path = checkmarkPath.CGPath;
 	self.checkmarkLayer.fillColor = nil;
 	self.checkmarkLayer.strokeColor = self.configuration.successColor.CGColor;
 	self.checkmarkLayer.lineWidth = self.configuration.lineWidth;
-	
+
 	[self.circleProgressView.layer addSublayer:self.circleProgressLineLayer];
 	[self.circleProgressView.layer addSublayer:self.checkmarkLayer];
-	
+
 	[self.circleProgressLineLayer removeAllAnimations];
 	[self.circleProgressView.layer removeAllAnimations];
 	[self.checkmarkLayer removeAllAnimations];
@@ -717,7 +717,7 @@ static KVNProgressConfiguration *configuration;
 - (void)setupErrorUI
 {
 	[self setupFullRoundCircleWithColor:self.configuration.errorColor];
-	
+
     self.stopLayer.opacity = 0.0f;
 
 	UIBezierPath* crossPath = [UIBezierPath bezierPath];
@@ -726,16 +726,16 @@ static KVNProgressConfiguration *configuration;
 	[crossPath moveToPoint:CGPointMake(CGRectGetWidth(self.circleProgressView.bounds) * 0.27f, CGRectGetHeight(self.circleProgressView.bounds) * 0.27f)];
 	[crossPath addLineToPoint:CGPointMake(CGRectGetWidth(self.circleProgressView.bounds) * 0.72f, CGRectGetHeight(self.circleProgressView.bounds) * 0.72f)];
 	crossPath.lineCapStyle = kCGLineCapSquare;
-	
+
 	self.crossLayer = [CAShapeLayer layer];
 	self.crossLayer.path = crossPath.CGPath;
 	self.crossLayer.fillColor = nil;
 	self.crossLayer.strokeColor = self.configuration.errorColor.CGColor;
 	self.crossLayer.lineWidth = self.configuration.lineWidth;
-	
+
 	[self.circleProgressView.layer addSublayer:self.circleProgressLineLayer];
 	[self.circleProgressView.layer addSublayer:self.crossLayer];
-	
+
 	[self.circleProgressLineLayer removeAllAnimations];
 	[self.circleProgressView.layer removeAllAnimations];
 	[self.crossLayer removeAllAnimations];
@@ -750,29 +750,29 @@ static KVNProgressConfiguration *configuration;
 	{
 		return;
 	}
-	
+
 	self.stopLayer.opacity = 1.0f;
-	
+
 	CGFloat squareBegin = 0.5f - (self.configuration.stopRelativeHeight / 2.0f);
 	CGFloat squareEnd = squareBegin + self.configuration.stopRelativeHeight;
 	UIBezierPath* stopPath = [UIBezierPath bezierPath];
 	[stopPath moveToPoint:CGPointMake(CGRectGetWidth(self.circleProgressView.bounds) * squareEnd, CGRectGetHeight(self.circleProgressView.bounds) * squareEnd)];
-	
+
 	[stopPath addLineToPoint:CGPointMake(CGRectGetWidth(self.circleProgressView.bounds) * squareBegin, CGRectGetHeight(self.circleProgressView.bounds) * squareEnd)];
 	[stopPath addLineToPoint:CGPointMake(CGRectGetWidth(self.circleProgressView.bounds) * squareBegin, CGRectGetHeight(self.circleProgressView.bounds) * squareBegin)];
 	[stopPath addLineToPoint:CGPointMake(CGRectGetWidth(self.circleProgressView.bounds) * squareEnd, CGRectGetHeight(self.circleProgressView.bounds) * squareBegin)];
-	
+
 	[stopPath closePath];
-	
+
 	stopPath.lineCapStyle = kCGLineCapSquare;
-	
+
 	self.stopLayer = [CAShapeLayer layer];
 	self.stopLayer.path = stopPath.CGPath;
 	self.stopLayer.fillColor = self.configuration.stopColor.CGColor;
-	
+
 	[self.circleProgressView.layer addSublayer:self.circleProgressLineLayer];
 	[self.circleProgressView.layer addSublayer:self.stopLayer];
-	
+
 	[self.circleProgressLineLayer removeAllAnimations];
 	[self.circleProgressView.layer removeAllAnimations];
 }
@@ -781,14 +781,14 @@ static KVNProgressConfiguration *configuration;
 {
 	CGFloat radius = (self.configuration.circleSize / 2.0f);
 	CGPoint center = CGPointMake(radius, radius);
-	
+
 	// Circle
 	UIBezierPath *circlePath = [UIBezierPath bezierPathWithArcCenter:center
 															  radius:(radius - self.configuration.lineWidth)
 														  startAngle:GLKMathDegreesToRadians(-90.0f)
 															endAngle:GLKMathDegreesToRadians(275.0f)
 														   clockwise:YES];
-	
+
 	self.circleProgressLineLayer = [CAShapeLayer layer];
 	self.circleProgressLineLayer.path = circlePath.CGPath;
 	self.circleProgressLineLayer.strokeColor = color.CGColor;
@@ -799,20 +799,20 @@ static KVNProgressConfiguration *configuration;
 - (void)setupStatus:(NSString *)status
 {
 	self.status = status;
-	
+
 	BOOL showStatus = (self.status.length > 0);
-	
+
 	CATransition *animation = [CATransition animation];
 	animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 	animation.type = kCATransitionFade;
 	animation.duration = KVNTextUpdateAnimationDuration;
 	[self.statusLabel.layer addAnimation:animation forKey:@"kCATransitionFade"];
-	
+
 	self.statusLabel.text = self.status;
 	self.statusLabel.textColor = self.configuration.statusColor;
 	self.statusLabel.font = self.configuration.statusFont;
 	self.statusLabel.hidden = !showStatus;
-	
+
 	[self updateStatusConstraints];
 }
 
@@ -821,12 +821,12 @@ static KVNProgressConfiguration *configuration;
 	if ([self.class isVisible]) {
 		[self updateBackgroundConstraints];
 		[self layoutIfNeeded];
-		
+
 		return; // No reload of background when view is showing
 	}
-	
+
 	[self updateBackground];
-	
+
 	KVNPrepareBlockSelf();
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
@@ -842,17 +842,17 @@ static KVNProgressConfiguration *configuration;
 															keyPath:@"center.y"];
 	UIMotionEffectGroup *group = [[UIMotionEffectGroup alloc] init];
 	group.motionEffects = @[xAxis, yAxis];
-	
+
 	[self.contentView addMotionEffect:group];
 }
 
 - (void)addToCurrentWindow
 {
 	UIWindow *currentWindow = [UIApplication sharedApplication].keyWindow;
-	
+
 	if (!currentWindow) {
 		NSEnumerator *frontToBackWindows = [[[UIApplication sharedApplication] windows] reverseObjectEnumerator];
-		
+
 		for (UIWindow *window in frontToBackWindows) {
 			if (window.windowLevel == UIWindowLevelNormal) {
 				currentWindow = window;
@@ -860,7 +860,7 @@ static KVNProgressConfiguration *configuration;
 			}
 		}
 	}
-	
+
 	if (self.superview != currentWindow) {
 		[self addToView:currentWindow];
 	}
@@ -872,10 +872,10 @@ static KVNProgressConfiguration *configuration;
 		[self.superview removeConstraints:self.constraintsToSuperview];
 		[self removeFromSuperview];
 	}
-	
+
 	[superview addSubview:self];
 	[superview bringSubviewToFront:self];
-	
+
 	NSArray *verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[self]|"
 																		   options:0
 																		   metrics:nil
@@ -884,17 +884,17 @@ static KVNProgressConfiguration *configuration;
 																			 options:0
 																			 metrics:nil
 																			   views:@{@"self" : self}];
-	
+
 	self.constraintsToSuperview = [verticalConstraints arrayByAddingObjectsFromArray:horizontalConstraints];
-	
+
 	self.translatesAutoresizingMaskIntoConstraints = NO;
 	[superview addConstraints:verticalConstraints];
 	[superview addConstraints:horizontalConstraints];
-	
+
 	[self layoutIfNeeded];
-	
+
 	self.alpha = 0.0f;
-	
+
 	// Fix for non autolayout project
 	self.frame = superview.bounds;
 }
@@ -912,7 +912,7 @@ static KVNProgressConfiguration *configuration;
 {
 	UIImage *backgroundImage = nil;
 	UIColor *backgroundColor = nil;
-	
+
 	switch (self.backgroundType) {
 		case KVNProgressBackgroundTypeSolid:
 			backgroundImage = [UIImage emptyImage];
@@ -923,27 +923,27 @@ static KVNProgressConfiguration *configuration;
 			backgroundColor = [UIColor clearColor];
 			break;
 	}
-	
+
 	if (!KVNSystemVersionGreaterOrEqual_iOS_8
 		&& !CGAffineTransformEqualToTransform(self.transform, CGAffineTransformIdentity))
 	{
 		CIImage *transformedCIImage = backgroundImage.CIImage;
-		
+
 		if (!transformedCIImage) {
 			transformedCIImage = [CIImage imageWithCGImage:backgroundImage.CGImage];
 		}
-		
+
 		transformedCIImage = [transformedCIImage imageByApplyingTransform:self.transform];
 		backgroundImage = [UIImage imageWithCIImage:transformedCIImage];
 	}
-	
+
 	[self updateBackgroundConstraints];
-	
+
 	if ([self isFullScreen])
 	{
 		self.backgroundImageView.image = backgroundImage;
 		self.backgroundImageView.backgroundColor = backgroundColor;
-		
+
 		self.contentView.layer.cornerRadius = 0.0f;
 		self.contentView.layer.masksToBounds = NO;
 		self.contentView.image = [UIImage emptyImage];
@@ -954,12 +954,12 @@ static KVNProgressConfiguration *configuration;
 		self.backgroundImageView.image = [UIImage emptyImage];
 		self.backgroundImageView.backgroundColor = [UIColor colorWithWhite:0.0f
 																	 alpha:0.35f];
-		
+
 		self.contentView.layer.cornerRadius = (self.status) ? KVNContentViewCornerRadius : KVNContentViewWithoutStatusCornerRadius;
 		self.contentView.layer.masksToBounds = YES;
 		self.contentView.contentMode = UIViewContentModeCenter;
 		self.contentView.backgroundColor = self.configuration.backgroundFillColor;
-		
+
 		self.contentView.image = backgroundImage;
 	}
 }
@@ -969,7 +969,7 @@ static KVNProgressConfiguration *configuration;
 	if (![self isFullScreen] && self.status.length == 0) {
 		self.circleProgressViewTopToSuperViewConstraint.constant = KVNContentViewWithoutStatusInset;
 		self.statusLabelBottomToSuperViewConstraint.constant = KVNContentViewWithoutStatusInset;
-		
+
 		// We sets the width as the height to have a square
 		CGSize fittingSize = [self.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
 		self.contentViewWidthConstraint.constant = fittingSize.height;
@@ -996,13 +996,13 @@ static KVNProgressConfiguration *configuration;
 - (void)updateStatusConstraints
 {
 	BOOL showStatus = (self.status.length > 0);
-	
+
 	self.circleProgressViewToStatusLabelVerticalSpaceConstraint.constant = (showStatus) ? KVNCircleProgressViewToStatusLabelVerticalSpaceConstraintConstant : 0.0f;
-	
+
 	CGSize maximumLabelSize = CGSizeMake(CGRectGetWidth(self.statusLabel.bounds), CGFLOAT_MAX);
 	CGSize statusLabelSize = [self.statusLabel sizeThatFits:maximumLabelSize];
 	self.statusLabelHeightConstraint.constant = statusLabelSize.height;
-	
+
 	[self layoutIfNeeded];
 }
 
@@ -1019,7 +1019,7 @@ static KVNProgressConfiguration *configuration;
 	if (self.style != KVNProgressStyleProgress) {
 		return;
 	}
-	
+
 	if ([self isIndeterminate]) {
 		// was inderminate
 		[self showProgress:progress
@@ -1029,30 +1029,30 @@ static KVNProgressConfiguration *configuration;
 				fullScreen:self.fullScreen
 					  view:self.superview
 				completion:nil];
-		
+
 		return;
 	}
-	
+
 	// Boundry correctness
 	progress = MIN(progress, 1.0f);
 	progress = MAX(progress, 0.0f);
-	
+
 	if (animated) {
 		CABasicAnimation *progressAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-		
+
 		progressAnimation.duration = KVNProgressAnimationDuration;
 		progressAnimation.removedOnCompletion = NO;
 		progressAnimation.fillMode = kCAFillModeBoth;
 		progressAnimation.fromValue = @(self.progress);
 		progressAnimation.toValue = @(progress);
 		progressAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-		
+
 		[self.circleProgressLineLayer addAnimation:progressAnimation
 											forKey:@"strokeEnd"];
 	} else {
 		self.circleProgressLineLayer.strokeEnd = progress;
 	}
-	
+
 	self.progress = progress;
 }
 
@@ -1068,7 +1068,7 @@ static KVNProgressConfiguration *configuration;
 				[self setupProgressCircle];
                 [self setupStopUI];
 			}
-            
+
 			break;
 		}
 		case KVNProgressStyleSuccess: {
@@ -1093,12 +1093,12 @@ static KVNProgressConfiguration *configuration;
 						options:UIViewAnimationOptionBeginFromCurrentState
 					 animations:^{}
 					 completion:nil];
-	
+
 	self.alpha = 0.0f;
 	self.contentView.transform = CGAffineTransformScale(self.contentView.transform, 1.2f, 1.2f);
-	
+
 	self.showActionTrigerredDate = [NSDate date];
-	
+
 	KVNPrepareBlockSelf();
 	[UIView animateWithDuration:KVNFadeAnimationDuration
 						  delay:0.0f
@@ -1109,7 +1109,7 @@ static KVNProgressConfiguration *configuration;
 					 } completion:^(BOOL finished) {
 						 UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
 						 UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, self.status);
-						 
+
 						 KVNBlockSelf.state = KVNProgressStateShowed;
 					 }];
 }
@@ -1122,7 +1122,7 @@ static KVNProgressConfiguration *configuration;
 	rotationAnimation.duration = KVNInfiniteLoopAnimationDuration;
 	rotationAnimation.cumulative = YES;
 	rotationAnimation.repeatCount = HUGE_VALF;
-	
+
 	[self.circleProgressView.layer addAnimation:rotationAnimation
 										 forKey:@"rotationAnimation"];
 
@@ -1132,31 +1132,31 @@ static KVNProgressConfiguration *configuration;
 {
 	[CATransaction begin];
 	[CATransaction setDisableActions:YES];
-	
+
 	[self.circleProgressView.layer removeAllAnimations];
 	[self.circleProgressLineLayer removeAllAnimations];
 	[self.circleBackgroundLineLayer removeAllAnimations];
-	
+
 	self.circleProgressLineLayer.strokeEnd = 0.0f;
 	self.circleBackgroundLineLayer.strokeEnd = 0.0f;
-	
+
 	if (self.circleProgressLineLayer.superlayer) {
 		[self.circleProgressLineLayer removeFromSuperlayer];
 	}
 	if (self.circleBackgroundLineLayer.superlayer) {
 		[self.circleBackgroundLineLayer removeFromSuperlayer];
 	}
-	
+
 	self.circleProgressLineLayer = nil;
 	self.circleBackgroundLineLayer = nil;
-	
+
 	[CATransaction commit];
 }
 
 - (void)animateSuccess
 {
 	[self animateFullCircleWithColor:self.configuration.successColor];
-	
+
 	CABasicAnimation *checkmarkAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
 	checkmarkAnimation.duration = KVNCheckmarkAnimationDuration;
 	checkmarkAnimation.removedOnCompletion = NO;
@@ -1164,7 +1164,7 @@ static KVNProgressConfiguration *configuration;
 	checkmarkAnimation.fromValue = @(0);
 	checkmarkAnimation.toValue = @(1);
 	checkmarkAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-	
+
 	[self.checkmarkLayer addAnimation:checkmarkAnimation
 							   forKey:@"strokeEnd"];
 }
@@ -1191,7 +1191,7 @@ static KVNProgressConfiguration *configuration;
 		circleAnimation.fillMode = kCAFillModeBoth;
 		circleAnimation.removedOnCompletion = NO;
 	}
-	
+
 	[self.circleProgressLineLayer addAnimation:circleAnimation
 										forKey:@"appearance"];
 }
@@ -1216,17 +1216,17 @@ static KVNProgressConfiguration *configuration;
 - (UIImage *)blurredScreenShotWithRect:(CGRect)rect
 {
 	UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
-	
+
 	UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0);
-	
+
 	[keyWindow drawViewHierarchyInRect:rect afterScreenUpdates:NO];
 	UIImage *blurredScreenShot = UIGraphicsGetImageFromCurrentImageContext();
-	
+
 	UIGraphicsEndImageContext();
-	
+
 	blurredScreenShot = [self applyTintEffectWithColor:self.configuration.backgroundTintColor
 												 image:blurredScreenShot];
-	
+
 	return blurredScreenShot;
 }
 
@@ -1234,7 +1234,7 @@ static KVNProgressConfiguration *configuration;
 								image:(UIImage *)image
 {
 	CGFloat tintAlpha = CGColorGetAlpha(tintColor.CGColor);
-	
+
 	return [image applyBlurWithRadius:10.0f
 							tintColor:(tintAlpha > 0.0f)? tintColor : nil
 				saturationDeltaFactor:1.0f
@@ -1249,7 +1249,7 @@ static KVNProgressConfiguration *configuration;
 	CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], cropRect);
 	image = [UIImage imageWithCGImage:imageRef];
 	CGImageRelease(imageRef);
-	
+
 	return image;
 }
 
@@ -1261,7 +1261,7 @@ static KVNProgressConfiguration *configuration;
 												 type:motionEffectType];
 	motionEffect.minimumRelativeValue = @(-KVNMotionEffectRelativeValue);
 	motionEffect.maximumRelativeValue = @(KVNMotionEffectRelativeValue);
-	
+
 	return motionEffect;
 }
 
@@ -1287,7 +1287,7 @@ static KVNProgressConfiguration *configuration;
 - (CGRect)correctedBoundsForBounds:(CGRect)boundsToCorrect
 {
 	CGRect bounds = (CGRect){CGPointZero, boundsToCorrect.size};
-	
+
 	if (!KVNSystemVersionGreaterOrEqual_iOS_8 && [self.superview isKindOfClass:UIWindow.class])
 	{
 		// landscape orientation but width is smaller than height
@@ -1299,7 +1299,7 @@ static KVNProgressConfiguration *configuration;
 				bounds = (CGRect){CGPointZero, {bounds.size.height, bounds.size.width}};
 		}
 	}
-	
+
 	return bounds;
 }
 
