@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<plugin id="cordova-plugin-progress" version="0.2.0" xmlns="http://apache.org/cordova/ns/plugins/1.0">
+<plugin id="cordova-plugin-progress" version="0.2.1" xmlns="http://apache.org/cordova/ns/plugins/1.0">
     <name>Progress</name>
     <author>Lee Crossley (http://ilee.co.uk/)</author>
     <description>Cordova / PhoneGap Plugin for Progress HUD Notifications via KVNProgress</description>
@@ -34,7 +34,7 @@
         <header-file src="src/ios/KVNProgress/Categories/UIImage+KVNImageEffects.h"/>
         <source-file src="src/ios/KVNProgress/Categories/UIImage+KVNImageEffects.m"/>
 
-        <resource-file src="src/ios/KVNProgress/Resoruces/KVNProgressView.xib"/>
+        <resource-file src="src/ios/KVNProgress/Resources/KVNProgressView.xib"/>
 
         <framework src="Foundation.framework"/>
         <framework src="QuartzCore.framework"/>
